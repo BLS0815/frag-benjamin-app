@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frag Benjamin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:        #c8a84b;
+      --gold-light:  #e0c06a;
+      --gold-dim:    #8a7030;
+      --bg:          #1a2744;
+      --bg-card:     #243255;
+      --bg-accent:   #2d3f6b;
+      --text:        #f0e8d0;
+      --text-muted:  #9a8f70;
+      --chip-border: #3a5080;
+      --danger:      #e05555;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Georgia', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--bg);
+      border-bottom: 1.5px solid var(--gold-dim);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-titles {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .header-title {
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--gold);
+      letter-spacing: 1px;
+      font-family: 'Georgia', serif;
+    }
+
+    .header-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'Georgia', serif;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-book {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-card);
+      border: 1px solid var(--gold-dim);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--gold);
+      cursor: pointer;
+      font-family: 'Georgia', serif;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .btn-book:hover { background: var(--bg-accent); }
+
+    .free-badge {
+      background: var(--bg-card);
+      border: 1px solid var(--gold-dim);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      color: var(--gold);
+      font-family: 'Georgia', serif;
+      white-space: nowrap;
+    }
+
+    /* ── MAIN CONTAINER ── */
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ── INTRO ── */
+    .intro {
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .intro-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--gold);
+      font-family: 'Georgia', serif;
+    }
+
+    .intro-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-family: 'Georgia', serif;
+    }
+
+    .intro-line {
+      width: 60px;
+      height: 1px;
+      background: var(--gold-dim);
+      margin: 10px auto 0;
+    }
+
+    /* ── CHIPS ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      background: var(--bg-card);
+      border: 1px solid var(--chip-border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      font-family: 'Georgia', serif;
+    }
+
+    .chip:hover, .chip:active {
+      background: var(--bg-accent);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ── INPUT CARD ── */
+    .input-card {
+      background: var(--bg-card);
+      border: 1px solid var(--chip-border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .input-card:focus-within {
+      border-color: var(--gold-dim);
+    }
+
+    textarea {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: 'Georgia', serif;
+      font-size: 14px;
+      padding: 0;
+      resize: none;
+      min-height: 80px;
+      width: 100%;
+      outline: none;
+    }
+
+    textarea::placeholder { color: var(--text-muted); }
+
+    button.send-btn {
+      background: var(--gold);
+      color: var(--bg);
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Georgia', serif;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+
+    button.send-btn:hover { background: var(--gold-light); }
+    button.send-btn:disabled {
+      background: var(--bg-accent);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    /* ── CRISIS BOX ── */
+    .crisis-box {
+      background: #1a0a0a;
+      border: 2px solid var(--danger);
+      border-radius: 10px;
+      padding: 1.5rem;
+      display: none;
+    }
+
+    .crisis-box.visible { display: block; }
+
+    .crisis-box p {
+      color: #f0a0a0;
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+
+    .crisis-box strong {
+      color: #fff;
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── ANSWER CARD ── */
+    .answer-card {
+      background: var(--bg-card);
+      border: 1px solid var(--gold-dim);
+      border-radius: 10px;
+      padding: 16px;
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .answer-card.visible { display: block; }
+
+    .answer-label {
+      font-size: 11px;
+      color: var(--gold-dim);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-family: 'Georgia', serif;
+    }
+
+    .answer-text {
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .answer-text ol {
+      margin: 0.5rem 0 0.5rem 1.4rem;
+    }
+
+    .answer-text li {
+      margin-bottom: 0.3rem;
+    }
+
+    .answer-text strong {
+      color: var(--gold-light);
+    }
+
+    /* ── LOADING ── */
+    .loading-dots {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .loading-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes pulse {
+      0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── ARCHIVE ── */
+    .archive-section { margin-top: 4px; }
+
+    .archive-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .archive-title {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .clear-btn {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Georgia', serif;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .clear-btn:hover { color: var(--danger); }
+
+    .archive-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .archive-item {
+      background: var(--bg-card);
+      border: 1px solid var(--chip-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .archive-item:hover { border-color: var(--gold); }
+
+    .archive-q {
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .archive-date {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* ── MODAL BASE ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1rem;
+    }
+
+    .modal-overlay.hidden { display: none; }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--gold);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 100%;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal h2 {
+      color: var(--gold);
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal p {
+      line-height: 1.7;
+      color: var(--text);
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .modal-btn {
+      background: var(--gold);
+      color: #000;
+      border: none;
+      padding: 0.7rem 1.8rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Georgia', serif;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+
+    .modal-btn:hover { background: var(--gold-light); }
+
+    /* ── PAYWALL MODAL ── */
+    .paywall-modal h2 { font-size: 1.5rem; }
+
+    .paywall-modal .price {
+      font-size: 2rem;
+      color: var(--gold);
+      font-weight: bold;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .paywall-modal ul {
+      list-style: none;
+      margin-bottom: 1.25rem;
+    }
+
+    .paywall-modal ul li {
+      color: var(--text);
+      font-size: 0.9rem;
+      padding: 0.3rem 0;
+    }
+
+    .paywall-modal ul li::before {
+      content: '✓ ';
+      color: var(--gold);
+    }
+
+    /* ── IMPRESSUM MODAL ── */
+    .impressum-modal .modal {
+      max-width: 420px;
+    }
+
+    .impressum-content {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.8;
+      margin-bottom: 1.25rem;
+      white-space: pre-line;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--chip-border);
+      padding: 12px 20px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'Georgia', serif;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    footer .footer-crisis strong {
+      color: var(--gold-dim);
+      font-weight: bold;
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-top: 2px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .footer-links a {
+      font-size: 10px;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: none;
+      padding: 0 8px;
+    }
+
+    .footer-links a:hover { text-decoration: underline; }
+
+    .footer-links .dot {
+      color: var(--text-muted);
+      user-select: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .header-title { font-size: 14px; }
+      .btn-book span { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- DISCLAIMER MODAL -->
+  <div class="modal-overlay" id="disclaimerOverlay">
+    <div class="modal">
+      <h2>Wichtiger Hinweis</h2>
+      <p>Frag Benjamin teilt persönliches Erfahrungswissen zu Narzissmus und toxischen Beziehungen. Diese App ersetzt keine Therapie, Rechtsberatung oder medizinische Behandlung.</p>
+      <p><strong>Bei akuter Gefahr:</strong><br>
+        Notruf <strong>112</strong><br>
+        Telefonseelsorge <strong>0800 111 0 111</strong> (kostenlos, 24/7)
+      </p>
+      <button class="modal-btn" id="disclaimerOkBtn">Ich habe verstanden</button>
+    </div>
+  </div>
+
+  <!-- PAYWALL MODAL -->
+  <div class="modal-overlay paywall-modal hidden" id="paywallOverlay">
+    <div class="modal">
+      <h2>Dein Kontingent ist aufgebraucht</h2>
+      <p>Du hast deine 5 kostenlosen Fragen genutzt. Mit dem vollständigen Zugang kannst du unbegrenzt fragen.</p>
+      <div class="price">9,90 € / Monat</div>
+      <ul>
+        <li>Unbegrenzte Fragen</li>
+        <li>Priorisierte Antworten</li>
+        <li>Vollständiges Archiv</li>
+        <li>Monatlich kündbar</li>
+      </ul>
+      <button class="modal-btn" id="paywallBtn">Jetzt freischalten</button>
+      <br><br>
+      <button class="clear-btn" id="paywallCloseBtn">Schließen</button>
+    </div>
+  </div>
+
+  <!-- IMPRESSUM MODAL -->
+  <div class="modal-overlay impressum-modal hidden" id="impressumOverlay">
+    <div class="modal">
+      <h2>Impressum</h2>
+      <div class="impressum-content">Impressum-Service Freise
+z. Hd. Benjamin-Lucas Schmidt
+Wettmarer Str. 1
+D-30938 Burgwedel
+
+Kontakt: b.lucas.s@web.de</div>
+      <button class="modal-btn" id="impressumCloseBtn">Schließen</button>
+    </div>
+  </div>
+
+  <!-- DATENSCHUTZ MODAL -->
+  <div class="modal-overlay hidden" id="datenschutzOverlay">
+    <div class="modal" style="max-width:480px; background:#243255; border:1px solid #c8a84b; border-radius:10px; padding:24px;">
+      <h2 style="color:#c8a84b; font-size:16px; font-weight:500; margin-bottom:16px; font-family:'Georgia',serif;">Datenschutzerklärung</h2>
+      <div style="color:#f0e8d0; font-size:13px; line-height:1.7; font-family:'Georgia',serif;">
+        <p><strong style="color:#c8a84b;">Verantwortlicher</strong><br>
+        Benjamin-Lucas Schmidt<br>
+        c/o Impressum-Service Freise<br>
+        Wettmarer Str. 1, D-30938 Burgwedel<br>
+        b.lucas.s@web.de</p>
+        <br>
+        <p><strong style="color:#c8a84b;">Was wir speichern</strong><br>
+        Diese App speichert deine Fragen und Antworten lokal auf deinem Gerät. Es findet kein Server-Upload deiner Inhalte statt. Bei Registrierung wird deine E-Mail-Adresse gespeichert und ausschließlich zur Kontoverwaltung genutzt. Es findet keine Weitergabe an Dritte statt.</p>
+        <br>
+        <p><strong style="color:#c8a84b;">Zahlungsdaten</strong><br>
+        Zahlungen werden über einen externen Anbieter abgewickelt. Wir speichern keine Kreditkartendaten.</p>
+        <br>
+        <p><strong style="color:#c8a84b;">Deine Rechte</strong><br>
+        Du hast jederzeit das Recht auf Auskunft, Berichtigung und Löschung deiner Daten (Art. 15–17 DSGVO). Anfragen bitte an: b.lucas.s@web.de</p>
+        <br>
+        <p><strong style="color:#c8a84b;">Hosting</strong><br>
+        Diese App wird über frag.blschmidtbooks.de betrieben, gehostet bei IONOS SE, Elgendorfer Str. 57, 56410 Montabaur.</p>
+        <br>
+        <p style="color:#9a8f70;">Stand: April 2026</p>
+      </div>
+      <button id="datenschutzCloseBtn" style="background:#c8a84b; color:#1a2744; border:none; border-radius:6px; padding:8px 16px; font-size:12px; font-weight:500; font-family:'Georgia',serif; cursor:pointer; margin-top:20px; width:100%;">Schließen</button>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="42" height="42" rx="4" fill="#1a2744"/>
+        <rect x="2" y="2" width="38" height="38" rx="2" stroke="#c8a84b" stroke-width="1" fill="none" opacity="0.5"/>
+        <path d="M2 8 h5 M7 8 v5 M7 13 h-5" stroke="#c8a84b" stroke-width="1" stroke-linecap="square" opacity="0.5"/>
+        <path d="M2 14 h3 M5 14 v3" stroke="#c8a84b" stroke-width="1" stroke-linecap="square" opacity="0.35"/>
+        <path d="M40 8 h-5 M35 8 v5 M35 13 h5" stroke="#c8a84b" stroke-width="1" stroke-linecap="square" opacity="0.5"/>
+        <path d="M40 14 h-3 M37 14 v3" stroke="#c8a84b" stroke-width="1" stroke-linecap="square" opacity="0.35"/>
+        <path d="M2 34 h5 M7 34 v-5 M7 29 h-5" stroke="#c8a84b" stroke-width="1" stroke-linecap="square" opacity="0.5"/>
+        <path d="M2 28 h3 M5 28 v-3" stroke="#c8a84b" stroke-width="1" stroke-linecap="square" opacity="0.35"/>
+        <path d="M40 34 h-5 M35 34 v-5 M35 29 h5" stroke="#c8a84b" stroke-width="1" stroke-linecap="square" opacity="0.5"/>
+        <path d="M40 28 h-3 M37 28 v-3" stroke="#c8a84b" stroke-width="1" stroke-linecap="square" opacity="0.35"/>
+        <path d="M21 8 L12 12 v8.5 c0 6.5 4.2 12.5 9 14.5 c4.8-2 9-8 9-14.5 V12 Z" fill="#c8a84b"/>
+        <line x1="21" y1="11" x2="21" y2="28" stroke="#1a2744" stroke-width="2" stroke-linecap="round"/>
+        <line x1="16.5" y1="18" x2="25.5" y2="18" stroke="#1a2744" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="21" cy="29.5" r="2" fill="#1a2744"/>
+      </svg>
+      <div class="header-titles">
+        <div class="header-title">FRAG BENJAMIN</div>
+        <div class="header-subtitle">Reflexion · Klarheit · Orientierung</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <a class="btn-book" href="https://www.amazon.de/Narzissmus-verstehen-Befreiungsplan-Anwendungsleitfaden-Beziehungen/dp/B0FTF8JGR9/" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c8a84b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        <span>Zum Buch</span>
+      </a>
+      <div class="free-badge" id="freeBadge">5 gratis</div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- INTRO -->
+    <div class="intro">
+      <div class="intro-title">Narzissmus verstehen</div>
+      <div class="intro-sub">Schild statt Schwert – der Begleitassistent zum Buch</div>
+      <div class="intro-line"></div>
+    </div>
+
+    <!-- CHIPS -->
+    <div class="chips">
+      <button class="chip" data-text="Was ist eine toxische Beziehung und wie erkenne ich sie?">Toxische Beziehung</button>
+      <button class="chip" data-text="Wie setze ich Grenzen gegenüber einem Narzissten?">Grenzen setzen</button>
+      <button class="chip" data-text="Was ist Gaslighting und wie schütze ich mich davor?">Gaslighting</button>
+      <button class="chip" data-text="Wie stärke ich meinen Selbstwert nach einer narzisstischen Beziehung?">Selbstwert</button>
+      <button class="chip" data-text="Wie schütze ich meine Kinder vor einem narzisstischen Elternteil?">Kinder schützen</button>
+      <button class="chip" data-text="Wie treffe ich die Entscheidung, eine toxische Beziehung zu verlassen?">Entscheidung treffen</button>
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-card">
+      <textarea id="fragenInput" placeholder="Deine Frage an Benjamin…" rows="4"></textarea>
+      <button class="send-btn" id="sendeBtn">Frage stellen →</button>
+    </div>
+
+    <!-- CRISIS BOX -->
+    <div class="crisis-box" id="crisisBox">
+      <p>
+        <strong>Bitte hol dir jetzt Hilfe.</strong>
+        Bitte ruf jetzt die Telefonseelsorge an:<br><br>
+        <strong>0800 111 0 111</strong><br>
+        Kostenlos · Anonym · 24 Stunden · 7 Tage die Woche
+      </p>
+    </div>
+
+    <!-- ANSWER -->
+    <div class="answer-card" id="answerCard">
+      <div class="answer-label">Benjamin antwortet</div>
+      <div class="answer-text" id="answerText"></div>
+    </div>
+
+    <!-- ARCHIVE -->
+    <div class="archive-section" id="archiveSection" style="display:none">
+      <div class="archive-header">
+        <div class="archive-title">Frühere Fragen</div>
+        <button class="clear-btn" id="clearArchiveBtn">Archiv löschen</button>
+      </div>
+      <div class="archive-list" id="archiveList"></div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>Diese App teilt persönliches Erfahrungswissen. Sie ersetzt keine Therapie oder Rechtsberatung.</div>
+    <div class="footer-crisis">Bei akuter Gefahr: <strong>Telefonseelsorge 0800 111 0 111</strong> (kostenlos, 24/7)</div>
+    <div class="footer-links">
+      <a id="impressumLink">Impressum</a>
+      <span class="dot">·</span>
+      <a id="datenschutzLink">Datenschutz</a>
+    </div>
+  </footer>
+
+  <script>
+    // ── CONSTANTS ──
+    const MAX_FREE = 5;
+    const CRISIS_WORDS = ['suizid', 'sterben', 'selbstverletzung', 'umbringen', 'tod', 'töten', 'suizidalität', 'suizidgedanken'];
+
+    // ── STATE ──
+    let freieFragen = parseInt(localStorage.getItem('fb_freie_fragen') ?? MAX_FREE, 10);
+    let archiv = JSON.parse(localStorage.getItem('fb_archiv') || '[]');
+
+    // ── ELEMENTS ──
+    const disclaimerOverlay = document.getElementById('disclaimerOverlay');
+    const disclaimerOkBtn   = document.getElementById('disclaimerOkBtn');
+    const paywallOverlay    = document.getElementById('paywallOverlay');
+    const paywallBtn        = document.getElementById('paywallBtn');
+    const paywallCloseBtn   = document.getElementById('paywallCloseBtn');
+    const impressumOverlay    = document.getElementById('impressumOverlay');
+    const impressumLink       = document.getElementById('impressumLink');
+    const impressumCloseBtn   = document.getElementById('impressumCloseBtn');
+    const datenschutzOverlay  = document.getElementById('datenschutzOverlay');
+    const datenschutzLink     = document.getElementById('datenschutzLink');
+    const datenschutzCloseBtn = document.getElementById('datenschutzCloseBtn');
+    const fragenInput       = document.getElementById('fragenInput');
+    const sendeBtn          = document.getElementById('sendeBtn');
+    const freeBadge         = document.getElementById('freeBadge');
+    const answerCard        = document.getElementById('answerCard');
+    const answerText        = document.getElementById('answerText');
+    const crisisBox         = document.getElementById('crisisBox');
+    const archiveSection    = document.getElementById('archiveSection');
+    const archiveList       = document.getElementById('archiveList');
+    const clearArchiveBtn   = document.getElementById('clearArchiveBtn');
+
+    // ── DISCLAIMER ──
+    if (!localStorage.getItem('fb_disclaimer_ok')) {
+      disclaimerOverlay.classList.remove('hidden');
+    } else {
+      disclaimerOverlay.classList.add('hidden');
+    }
+
+    disclaimerOkBtn.addEventListener('click', () => {
+      localStorage.setItem('fb_disclaimer_ok', '1');
+      disclaimerOverlay.classList.add('hidden');
+    });
+
+    // ── COUNTER DISPLAY ──
+    function updateCounter() {
+      const remaining = Math.max(0, freieFragen);
+      freeBadge.textContent = remaining + ' gratis';
+      if (freieFragen <= 0) {
+        sendeBtn.disabled = true;
+        sendeBtn.textContent = 'Limit erreicht';
+        freeBadge.textContent = '0 gratis';
+      }
+    }
+
+    updateCounter();
+
+    // ── CHIPS ──
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        fragenInput.value = chip.dataset.text;
+        fragenInput.focus();
+      });
+    });
+
+    // ── MARKDOWN → HTML ──
+    function markdownToHtml(text) {
+      const lines = text.split('\n');
+      const output = [];
+      let inList = false;
+
+      for (let i = 0; i < lines.length; i++) {
+        // Escape HTML entities pro Zeile
+        let line = lines[i]
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+
+        // **fett** → <strong>
+        line = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+        const listMatch = line.match(/^\d+\.\s+(.+)/);
+
+        if (listMatch) {
+          // Listenpunkt – ggf. <ol> öffnen
+          if (!inList) {
+            output.push('<ol>');
+            inList = true;
+          }
+          output.push(`<li>${listMatch[1]}</li>`);
+        } else {
+          // Kein Listenpunkt – ggf. <ol> schließen
+          if (inList) {
+            output.push('</ol>');
+            inList = false;
+          }
+          output.push(line.trim() === '' ? '<br>' : line);
+        }
+      }
+
+      // Offene Liste am Ende schließen
+      if (inList) output.push('</ol>');
+
+      // Zeilen verbinden: kein <br> direkt an ol-Tags
+      return output
+        .join('\n')
+        .replace(/\n(<ol>)/g, '$1')
+        .replace(/(<\/ol>)\n/g, '$1')
+        .replace(/\n/g, '<br>');
+    }
+
+    // ── CRISIS CHECK ──
+    function isCrisis(text) {
+      const lower = text.toLowerCase();
+      return CRISIS_WORDS.some(w => lower.includes(w));
+    }
+
+    // ── SEND ──
+    sendeBtn.addEventListener('click', async () => {
+      const frage = fragenInput.value.trim();
+      if (!frage) return;
+
+      // Paywall check
+      if (freieFragen <= 0) {
+        paywallOverlay.classList.remove('hidden');
+        return;
+      }
+
+      // Crisis check
+      crisisBox.classList.remove('visible');
+      answerCard.classList.remove('visible');
+
+      if (isCrisis(frage)) {
+        crisisBox.classList.add('visible');
+        return;
+      }
+
+      // Decrement counter
+      freieFragen--;
+      localStorage.setItem('fb_freie_fragen', freieFragen);
+      updateCounter();
+
+      // Show loading
+      answerCard.classList.add('visible');
+      answerText.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+      sendeBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/frage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ frage }),
+        });
+
+        const data = await res.json();
+
+        if (data.fehler) {
+          answerText.textContent = 'Fehler: ' + data.fehler;
+        } else {
+          answerText.innerHTML = markdownToHtml(data.antwort);
+
+          // Save to archive
+          archiv.unshift({
+            frage,
+            antwort: data.antwort,
+            datum: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          });
+          if (archiv.length > 20) archiv = archiv.slice(0, 20);
+          localStorage.setItem('fb_archiv', JSON.stringify(archiv));
+          renderArchive();
+        }
+      } catch (err) {
+        answerText.textContent = 'Verbindungsfehler. Bitte stelle sicher, dass der Server läuft.';
+      } finally {
+        if (freieFragen > 0) {
+          sendeBtn.disabled = false;
+          sendeBtn.textContent = 'Frage stellen →';
+        }
+      }
+    });
+
+    // ── PAYWALL ──
+    paywallBtn.addEventListener('click', () => {
+      alert('Zahlungsseite noch nicht verknüpft. Hier würde der Checkout starten.');
+    });
+
+    paywallCloseBtn.addEventListener('click', () => {
+      paywallOverlay.classList.add('hidden');
+    });
+
+    // ── IMPRESSUM ──
+    impressumLink.addEventListener('click', () => {
+      impressumOverlay.classList.remove('hidden');
+    });
+
+    impressumCloseBtn.addEventListener('click', () => {
+      impressumOverlay.classList.add('hidden');
+    });
+
+    impressumOverlay.addEventListener('click', (e) => {
+      if (e.target === impressumOverlay) impressumOverlay.classList.add('hidden');
+    });
+
+    // ── DATENSCHUTZ ──
+    datenschutzLink.addEventListener('click', () => {
+      datenschutzOverlay.classList.remove('hidden');
+    });
+
+    datenschutzCloseBtn.addEventListener('click', () => {
+      datenschutzOverlay.classList.add('hidden');
+    });
+
+    datenschutzOverlay.addEventListener('click', (e) => {
+      if (e.target === datenschutzOverlay) datenschutzOverlay.classList.add('hidden');
+    });
+
+    // ── ARCHIVE ──
+    function renderArchive() {
+      if (archiv.length === 0) {
+        archiveSection.style.display = 'none';
+        return;
+      }
+      archiveSection.style.display = 'block';
+      archiveList.innerHTML = '';
+      archiv.forEach((item, i) => {
+        const el = document.createElement('div');
+        el.className = 'archive-item';
+        el.innerHTML = `<div class="archive-q">${escapeHtml(item.frage)}</div><div class="archive-date">${item.datum}</div>`;
+        el.addEventListener('click', () => {
+          answerCard.classList.add('visible');
+          answerText.innerHTML = markdownToHtml(item.antwort);
+          crisisBox.classList.remove('visible');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        archiveList.appendChild(el);
+      });
+    }
+
+    clearArchiveBtn.addEventListener('click', () => {
+      if (confirm('Archiv wirklich löschen?')) {
+        archiv = [];
+        localStorage.removeItem('fb_archiv');
+        renderArchive();
+      }
+    });
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    renderArchive();
+  </script>
+</body>
+</html>

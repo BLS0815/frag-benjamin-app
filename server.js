@@ -1,5 +1,5 @@
+require('dotenv').config();
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const Anthropic = require('@anthropic-ai/sdk');
@@ -9,11 +9,11 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname)));
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+function getClient() {
+  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+}
 
 const SYSTEM_PROMPT = `
 Antworte ausschließlich in natürlichen Absätzen. Verwende keinerlei Markdown-Formatierung: keine ##-Zeichen, keine **Sternchen**, keine --Bindestriche als Aufzählung, keine nummerierten Listen. Trenne Gedanken nur durch Leerzeilen.
@@ -155,6 +155,7 @@ app.post('/api/frage', async (req, res) => {
   }
 
   try {
+    const client = getClient();
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,

@@ -172,7 +172,11 @@ app.post('/api/frage', async (req, res) => {
     res.json({ antwort });
   } catch (err) {
     console.error('Anthropic API Fehler:', err.message);
-    res.status(500).json({ fehler: 'Fehler beim Abrufen der Antwort. Bitte später erneut versuchen.' });
+    console.error('Fehler Typ:', err.constructor.name);
+    console.error('Fehler Status:', err.status);
+    console.error('API Key vorhanden:', !!process.env.ANTHROPIC_API_KEY);
+    console.error('API Key Länge:', process.env.ANTHROPIC_API_KEY?.length);
+    res.status(500).json({ fehler: err.message || 'Fehler beim Abrufen der Antwort.' });
   }
 });
 

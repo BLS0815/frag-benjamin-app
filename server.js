@@ -2,7 +2,6 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
-const Anthropic = require('@anthropic-ai/sdk');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -10,10 +9,6 @@ const PORT = process.env.PORT || 8080;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
-
-function getClient() {
-  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-}
 
 const SYSTEM_PROMPT = `
 Antworte ausschließlich in natürlichen Absätzen. Verwende keinerlei Markdown-Formatierung: keine ##-Zeichen, keine **Sternchen**, keine --Bindestriche als Aufzählung, keine nummerierten Listen. Trenne Gedanken nur durch Leerzeilen.
@@ -155,28 +150,33 @@ app.post('/api/frage', async (req, res) => {
   }
 
   try {
-    const client = getClient();
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: 'user',
-          content: frage.trim(),
-        },
-      ],
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: frage.trim() }],
+      }),
     });
 
-    const antwort = message.content[0].text;
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Anthropic Fehler:', JSON.stringify(data));
+      return res.status(500).json({ fehler: data?.error?.message || 'Fehler bei der Anthropic API.' });
+    }
+
+    const antwort = data.content[0].text;
     res.json({ antwort });
   } catch (err) {
-    console.error('Anthropic API Fehler:', err.message);
-    console.error('Fehler Typ:', err.constructor.name);
-    console.error('Fehler Status:', err.status);
-    console.error('API Key vorhanden:', !!process.env.ANTHROPIC_API_KEY);
-    console.error('API Key Länge:', process.env.ANTHROPIC_API_KEY?.length);
-    res.status(500).json({ fehler: err.message || 'Fehler beim Abrufen der Antwort.' });
+    console.error('Fetch Fehler:', err.message);
+    res.status(500).json({ fehler: 'Verbindungsfehler zur API: ' + err.message });
   }
 });
 

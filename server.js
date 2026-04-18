@@ -176,6 +176,10 @@ app.post('/api/frage', async (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Frag Benjamin läuft auf http://0.0.0.0:${PORT}`);
 });

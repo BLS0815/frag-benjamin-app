@@ -175,6 +175,6 @@ app.post('/api/frage', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Frag Benjamin läuft auf http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Frag Benjamin läuft auf http://0.0.0.0:${PORT}`);
 });

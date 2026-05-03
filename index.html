@@ -424,6 +424,41 @@
 
     .modal-btn:hover { background: var(--gold-light); }
 
+    /* ── DISCLAIMER MODAL ── */
+    .disclaimer-modal h2 { font-size: 1.25rem; line-height: 1.4; }
+    .disclaimer-crisis {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--gold-dim);
+    }
+    .disclaimer-crisis p { font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.6; }
+    .disclaimer-crisis a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .disclaimer-crisis a:hover { text-decoration: underline; }
+    .paywall-mail {
+      background: var(--bg);
+      border: 1px solid var(--gold-dim);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      margin: 1rem 0 !important;
+    }
+    .paywall-mail a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .paywall-mail a:hover { text-decoration: underline; }
+    .paywall-signature {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: right;
+      margin-top: 1rem !important;
+    }
+
     /* ── PAYWALL MODAL ── */
     .paywall-modal h2 { font-size: 1.5rem; }
 
@@ -515,37 +550,33 @@
 </head>
 <body>
 
-  <!-- DISCLAIMER MODAL -->
-  <div class="modal-overlay" id="disclaimerOverlay">
+<!-- DISCLAIMER MODAL -->
+  <div class="modal-overlay" id="disclaimerOverlay" role="dialog" aria-modal="true" aria-labelledby="disclaimerTitle">
+    <div class="modal disclaimer-modal">
+      <h2 id="disclaimerTitle">Schön, dass du hierher gefunden hast.</h2>
+      <p>Frag Benjamin ist ein digitaler Begleiter, der auf den Inhalten meines Buches <em>„Narzissmus verstehen — Schild statt Schwert"</em> basiert. Er kann zuhören, einordnen helfen und Fragen beantworten — anonym, jederzeit, ohne Anmeldung.</p>
+      <p><strong>Wichtig:</strong> Frag Benjamin ist kein Ersatz für eine Therapie oder professionelle Beratung. Wenn es dir gerade akut schlecht geht oder du in einer Krise steckst, ist menschlicher Beistand der richtige Weg.</p>
+      <div class="disclaimer-crisis">
+        <p><strong>Hilfe rund um die Uhr — kostenlos und anonym:</strong></p>
+        <p>🇩🇪 <strong>Deutschland</strong> — Telefonseelsorge: <a href="tel:+498001110111">0800 111 0 111</a> · <a href="tel:+498001110222">0800 111 0 222</a> · <a href="tel:+49116123">116 123</a></p>
+        <p>🇦🇹 <strong>Österreich</strong> — Telefonseelsorge: <a href="tel:+43142">142</a></p>
+        <p>🇨🇭 <strong>Schweiz / Liechtenstein</strong> — Die Dargebotene Hand: <a href="tel:+41143">143</a></p>
+      </div>
+      <button class="modal-btn" id="disclaimerOkBtn">Ich habe verstanden →</button>
+    </div>
+<!-- PAYWALL MODAL -->
+  <div class="modal-overlay paywall-modal hidden" id="paywallOverlay" role="dialog" aria-modal="true" aria-labelledby="paywallTitle">
     <div class="modal">
-      <h2>Wichtiger Hinweis</h2>
-      <p>Frag Benjamin teilt persönliches Erfahrungswissen zu Narzissmus und toxischen Beziehungen. Diese App ersetzt keine Therapie, Rechtsberatung oder medizinische Behandlung.</p>
-      <p><strong>Bei akuter Gefahr:</strong><br>
-        Notruf <strong>112</strong><br>
-        Telefonseelsorge <strong>0800 111 0 111</strong> (kostenlos, 24/7)
-      </p>
-      <button class="modal-btn" id="disclaimerOkBtn">Ich habe verstanden</button>
+      <h2 id="paywallTitle">Du hast deine 10 Gratisfragen aufgebraucht.</h2>
+      <p>Ich freue mich, dass dir Frag Benjamin offenbar weiterhilft. Die Bezahlfunktion ist gerade im Aufbau und wird bald verfügbar sein.</p>
+      <p>In der Zwischenzeit kannst du eine <strong>manuelle Freischaltung</strong> per E-Mail anfragen:</p>
+      <p class="paywall-mail">📧 <a href="mailto:b.lucas.s@web.de">b.lucas.s@web.de</a></p>
+      <p>Schreib mir kurz, dass du gerne weiternutzen möchtest — ich melde mich zeitnah zurück.</p>
+      <p class="paywall-signature">— Benjamin</p>
+      <button class="modal-btn" id="paywallCloseBtn">Schließen</button>
+      <button id="paywallBtn" hidden></button>
     </div>
   </div>
-
-  <!-- PAYWALL MODAL -->
-  <div class="modal-overlay paywall-modal hidden" id="paywallOverlay">
-    <div class="modal">
-      <h2>Dein Kontingent ist aufgebraucht</h2>
-      <p>Du hast deine 5 kostenlosen Fragen genutzt. Mit dem vollständigen Zugang kannst du unbegrenzt fragen.</p>
-      <div class="price">9,90 € / Monat</div>
-      <ul>
-        <li>Unbegrenzte Fragen</li>
-        <li>Priorisierte Antworten</li>
-        <li>Vollständiges Archiv</li>
-        <li>Monatlich kündbar</li>
-      </ul>
-      <button class="modal-btn" id="paywallBtn">Jetzt freischalten</button>
-      <br><br>
-      <button class="clear-btn" id="paywallCloseBtn">Schließen</button>
-    </div>
-  </div>
-
   <!-- IMPRESSUM MODAL -->
   <div class="modal-overlay impressum-modal hidden" id="impressumOverlay">
     <div class="modal">
@@ -620,7 +651,7 @@ Kontakt: b.lucas.s@web.de</div>
         </svg>
         <span>Zum Buch</span>
       </a>
-      <div class="free-badge" id="freeBadge">5 gratis</div>
+      <div class="free-badge" id="freeBadge">10 gratis</div>
     </div>
   </header>
 
@@ -694,6 +725,14 @@ Kontakt: b.lucas.s@web.de</div>
     const CRISIS_WORDS = ['suizid', 'sterben', 'selbstverletzung', 'umbringen', 'tod', 'töten', 'suizidalität', 'suizidgedanken'];
 
     // ── STATE ──
+    // Migration v2: Bestandsnutzer (frueheres Limit 5) einmalig auf neues MAX_FREE anheben.
+    if (!localStorage.getItem('fb_migrated_v2')) {
+      const _stored = parseInt(localStorage.getItem('fb_freie_fragen') ?? MAX_FREE, 10);
+      if (_stored < MAX_FREE) {
+        localStorage.setItem('fb_freie_fragen', MAX_FREE);
+      }
+      localStorage.setItem('fb_migrated_v2', '1');
+    }
     let freieFragen = parseInt(localStorage.getItem('fb_freie_fragen') ?? MAX_FREE, 10);
     let archiv = JSON.parse(localStorage.getItem('fb_archiv') || '[]');
 

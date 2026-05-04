@@ -767,6 +767,7 @@ Kontakt: b.lucas.s@web.de</div>
       disclaimerOverlay.classList.add('hidden');
     }
 
+
     disclaimerOkBtn.addEventListener('click', () => {
       localStorage.setItem('fb_disclaimer_ok', '1');
       disclaimerOverlay.classList.add('hidden');
@@ -777,8 +778,7 @@ Kontakt: b.lucas.s@web.de</div>
       const remaining = Math.max(0, freieFragen);
       freeBadge.textContent = remaining + ' gratis';
       if (freieFragen <= 0) {
-        sendeBtn.disabled = true;
-        sendeBtn.textContent = 'Limit erreicht';
+        sendeBtn.textContent = 'Limit erreicht — weitersprechen?';
         freeBadge.textContent = '0 gratis';
       }
     }
@@ -847,14 +847,14 @@ Kontakt: b.lucas.s@web.de</div>
 
     // ── SEND ──
     sendeBtn.addEventListener('click', async () => {
-      const frage = fragenInput.value.trim();
-      if (!frage) return;
-
-      // Paywall check
+      // Paywall zuerst: auch bei leerem Eingabefeld bei 0 oeffnen
       if (freieFragen <= 0) {
         paywallOverlay.classList.remove('hidden');
         return;
-      }
+    }
+      const frage = fragenInput.value.trim();
+      if (!frage) return;
+
 
       // Crisis check
       crisisBox.classList.remove('visible');
@@ -902,10 +902,12 @@ Kontakt: b.lucas.s@web.de</div>
       } catch (err) {
         answerText.textContent = 'Verbindungsfehler. Bitte stelle sicher, dass der Server läuft.';
       } finally {
+        sendeBtn.disabled = false;
         if (freieFragen > 0) {
-          sendeBtn.disabled = false;
           sendeBtn.textContent = 'Frage stellen →';
-        }
+        } else {
+          sendeBtn.textContent = 'Limit erreicht — weitersprechen?';
+        } 
       }
     });
 

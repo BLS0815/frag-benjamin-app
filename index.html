@@ -424,6 +424,25 @@
 
     .modal-btn:hover { background: var(--gold-light); }
 
+    .modal-btn-secondary {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--chip-border);
+      padding: 0.7rem 1.8rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Georgia', serif;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 0.5rem;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .modal-btn-secondary:hover {
+      color: var(--text);
+      border-color: var(--text-muted);
+    }
+
     /* ── DISCLAIMER MODAL ── */
     .disclaimer-modal h2 { font-size: 1.25rem; line-height: 1.4; }
     .disclaimer-crisis {
@@ -566,17 +585,15 @@
     </div>
   </div>
     
-<!-- PAYWALL MODAL -->
-  <div class="modal-overlay paywall-modal hidden" id="paywallOverlay" role="dialog" aria-modal="true" aria-labelledby="paywallTitle">
+<!-- TRINKGELD MODAL -->
+  <div class="modal-overlay paywall-modal hidden" id="paywallOverlay" role="dialog" aria-modal="true">
     <div class="modal">
-      <h2 id="paywallTitle">Du hast deine 10 Gratisfragen aufgebraucht.</h2>
-      <p>Ich freue mich, dass dir Frag Benjamin offenbar weiterhilft. Die Bezahlfunktion ist gerade im Aufbau und wird bald verfügbar sein.</p>
-      <p>In der Zwischenzeit kannst du eine <strong>manuelle Freischaltung</strong> per E-Mail anfragen:</p>
-      <p class="paywall-mail">📧 <a href="mailto:b.lucas.s@web.de">b.lucas.s@web.de</a></p>
-      <p>Schreib mir kurz, dass du gerne weiternutzen möchtest — ich melde mich zeitnah zurück.</p>
-      <p class="paywall-signature">— Benjamin</p>
-      <button class="modal-btn" id="paywallCloseBtn">Schließen</button>
-      <button id="paywallBtn" hidden></button>
+      <p>Du hast Frag Benjamin schon einige Fragen gestellt. Ich hoffe, die Antworten konnten dir weiterhelfen oder dich zumindest beruhigen.</p>
+      <p>Frag Benjamin ist und bleibt kostenlos nutzbar. Ohne Anmeldung, ohne Tracking. Diese Seite ist nur für dich da. Du kannst dich gerne weiter durchfragen.</p>
+      <p>Wenn du magst, kannst du mir einen Kaffee spendieren oder ein Glas Rotwein für meine Muse. Ganz freiwillig, in der Höhe, die für dich passt.</p>
+      <p class="paywall-signature">Benjamin</p>
+      <button class="modal-btn" id="donateBtn">Spendieren (PayPal)</button>
+      <button class="modal-btn-secondary" id="paywallCloseBtn">Vielleicht später</button>
     </div>
   </div>
   <!-- IMPRESSUM MODAL -->
@@ -723,26 +740,30 @@ Kontakt: b.lucas.s@web.de</div>
 
   <script>
     // ── CONSTANTS ──
-    const MAX_FREE = 5;
     const CRISIS_WORDS = ['suizid', 'sterben', 'selbstverletzung', 'umbringen', 'tod', 'töten', 'suizidalität', 'suizidgedanken'];
 
+    // ── TRINKGELD-CONFIG ──
+    const TRIGGER_INTERVAL          = 7;   // Pop-up alle N Fragen
+    const COOLDOWN_AFTER_DONATE_CLICK = 14; // Cooldown nach "Spendieren"-Klick
+    const PAYPAL_URL = 'https://paypal.me/Schildstattschwert';
+
     // ── STATE ──
-    // Migration v2: Bestandsnutzer (frueheres Limit 5) einmalig auf neues MAX_FREE anheben.
-    if (!localStorage.getItem('fb_migrated_v2')) {
-      const _stored = parseInt(localStorage.getItem('fb_freie_fragen') ?? MAX_FREE, 10);
-      if (_stored < MAX_FREE) {
-        localStorage.setItem('fb_freie_fragen', MAX_FREE);
-      }
-      localStorage.setItem('fb_migrated_v2', '1');
+    // Harter Schnitt: alle Nutzer starten neu bei 0.
+    if (!localStorage.getItem('trinkgeld_initialized')) {
+      localStorage.removeItem('fb_freie_fragen');
+      localStorage.removeItem('fb_migrated_v2');
+      localStorage.setItem('trinkgeld_question_count', '0');
+      localStorage.setItem('trinkgeld_last_donate_click', '0');
+      localStorage.setItem('trinkgeld_initialized', 'true');
     }
-    let freieFragen = parseInt(localStorage.getItem('fb_freie_fragen') ?? MAX_FREE, 10);
+    let trinkgeldQuestionCount   = parseInt(localStorage.getItem('trinkgeld_question_count')    || '0', 10);
+    let trinkgeldLastDonateClick = parseInt(localStorage.getItem('trinkgeld_last_donate_click') || '0', 10);
     let archiv = JSON.parse(localStorage.getItem('fb_archiv') || '[]');
 
     // ── ELEMENTS ──
     const disclaimerOverlay = document.getElementById('disclaimerOverlay');
     const disclaimerOkBtn   = document.getElementById('disclaimerOkBtn');
     const paywallOverlay    = document.getElementById('paywallOverlay');
-    const paywallBtn        = document.getElementById('paywallBtn');
     const paywallCloseBtn   = document.getElementById('paywallCloseBtn');
     const impressumOverlay    = document.getElementById('impressumOverlay');
     const impressumLink       = document.getElementById('impressumLink');
@@ -775,15 +796,20 @@ Kontakt: b.lucas.s@web.de</div>
 
     // ── COUNTER DISPLAY ──
     function updateCounter() {
-      const remaining = Math.max(0, freieFragen);
-      freeBadge.textContent = remaining + ' gratis';
-      if (freieFragen <= 0) {
-        sendeBtn.textContent = 'Limit erreicht — weitersprechen?';
-        freeBadge.textContent = '0 gratis';
-      }
+      freeBadge.textContent = 'kostenlos';
     }
 
     updateCounter();
+
+    // ── TRINKGELD-TRIGGER ──
+    function shouldShowTrinkgeld() {
+      if (trinkgeldQuestionCount === 0) return false;
+      if (trinkgeldQuestionCount % TRIGGER_INTERVAL !== 0) return false;
+      if (trinkgeldLastDonateClick > 0 &&
+          trinkgeldQuestionCount - trinkgeldLastDonateClick < COOLDOWN_AFTER_DONATE_CLICK)
+        return false;
+      return true;
+    }
 
     // ── CHIPS ──
     document.querySelectorAll('.chip').forEach(chip => {
@@ -847,16 +873,9 @@ Kontakt: b.lucas.s@web.de</div>
 
     // ── SEND ──
     sendeBtn.addEventListener('click', async () => {
-      // Paywall zuerst: auch bei leerem Eingabefeld bei 0 oeffnen
-      if (freieFragen <= 0) {
-        paywallOverlay.classList.remove('hidden');
-        return;
-    }
       const frage = fragenInput.value.trim();
       if (!frage) return;
 
-
-      // Crisis check
       crisisBox.classList.remove('visible');
       answerCard.classList.remove('visible');
 
@@ -865,12 +884,6 @@ Kontakt: b.lucas.s@web.de</div>
         return;
       }
 
-      // Decrement counter
-      freieFragen--;
-      localStorage.setItem('fb_freie_fragen', freieFragen);
-      updateCounter();
-
-      // Show loading
       answerCard.classList.add('visible');
       answerText.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
       sendeBtn.disabled = true;
@@ -889,7 +902,7 @@ Kontakt: b.lucas.s@web.de</div>
         } else {
           answerText.innerHTML = markdownToHtml(data.antwort);
 
-          // Save to archive
+          // Archiv
           archiv.unshift({
             frage,
             antwort: data.antwort,
@@ -898,26 +911,38 @@ Kontakt: b.lucas.s@web.de</div>
           if (archiv.length > 20) archiv = archiv.slice(0, 20);
           localStorage.setItem('fb_archiv', JSON.stringify(archiv));
           renderArchive();
+
+          // Zaehler erst nach erfolgreicher Antwort hochzaehlen
+          trinkgeldQuestionCount++;
+          localStorage.setItem('trinkgeld_question_count', trinkgeldQuestionCount);
+          if (shouldShowTrinkgeld()) paywallOverlay.classList.remove('hidden');
         }
       } catch (err) {
         answerText.textContent = 'Verbindungsfehler. Bitte stelle sicher, dass der Server läuft.';
       } finally {
         sendeBtn.disabled = false;
-        if (freieFragen > 0) {
-          sendeBtn.textContent = 'Frage stellen →';
-        } else {
-          sendeBtn.textContent = 'Limit erreicht — weitersprechen?';
-        } 
+        sendeBtn.textContent = 'Frage stellen →';
       }
     });
 
-    // ── PAYWALL ──
-    paywallBtn.addEventListener('click', () => {
-      alert('Zahlungsseite noch nicht verknüpft. Hier würde der Checkout starten.');
+    // ── TRINKGELD-BUTTONS ──
+    document.getElementById('donateBtn').addEventListener('click', () => {
+      trinkgeldLastDonateClick = trinkgeldQuestionCount;
+      localStorage.setItem('trinkgeld_last_donate_click', trinkgeldLastDonateClick);
+      window.open(PAYPAL_URL, '_blank', 'noopener');
+      paywallOverlay.classList.add('hidden');
     });
 
     paywallCloseBtn.addEventListener('click', () => {
       paywallOverlay.classList.add('hidden');
+    });
+
+    // ESC und Overlay-Klick deaktiviert fuer Trinkgeld-Modal
+    paywallOverlay.addEventListener('click', (e) => { e.stopPropagation(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !paywallOverlay.classList.contains('hidden')) {
+        e.preventDefault();
+      }
     });
 
     // ── IMPRESSUM ──
@@ -981,6 +1006,14 @@ Kontakt: b.lucas.s@web.de</div>
     }
 
     renderArchive();
+
+    // ── MULTI-TAB-SYNC ──
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'trinkgeld_question_count')
+        trinkgeldQuestionCount = parseInt(e.newValue || '0', 10);
+      if (e.key === 'trinkgeld_last_donate_click')
+        trinkgeldLastDonateClick = parseInt(e.newValue || '0', 10);
+    });
   </script>
 </body>
 </html>

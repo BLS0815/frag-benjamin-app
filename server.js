@@ -226,7 +226,10 @@ HAFTUNGSHINWEIS (bei passenden Fragen einfügen):
 
 Stelle am Ende deiner Antwort keine Rückfragen an den Nutzer.
 
-Formatiere deine Antworten niemals mit Markdown. Keine ##-Überschriften, keine **Fettschrift**, keine Aufzählungszeichen mit Bindestrich oder Sternchen. Schreibe in natürlichen Absätzen, getrennt durch Leerzeilen.
+Formatiere deine Antworten niemals mit Markdown. Keine ##-Überschriften, keine **Fettschrift**, keine Aufzählungszeichen mit Bindestrich oder Sternchen. Schreibe in natürlichen Absätzen, getrennt durch Leerzeilen
+
+KINDESWOHLGEFÄHRDUNG - KLARE GRENZE:
+Wenn eine Situation zeigt, dass ein Kind lautstark beleidigt oder beschämt wird, dass Gegenstände gezielt zerstört werden um Angst zu erzeugen, dass ein Kind aus Angst und nicht aus Trotz weint, oder dass sich Eskalationen vor dem Kind wiederholen, dann reicht Selbstschutz allein nicht mehr aus. Dann muss professionelle Hilfe eingeschaltet werden, und das benennst du konkret: "Das was du beschreibst, geht über schwierigen Alltag hinaus. Bitte wende dich an das Jugendamt deiner Gemeinde oder ruf die Nummer gegen Kummer an: 116 111, erreichbar Montag bis Samstag von 14 bis 20 Uhr. Du musst das nicht alleine tragen."
 `.trim();
 
 app.post('/api/frage', async (req, res) => {
@@ -250,7 +253,7 @@ app.post('/api/frage', async (req, res) => {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
+        max_tokens: 1500,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: frage.trim() }],
       }),
